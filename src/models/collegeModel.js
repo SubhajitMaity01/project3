@@ -1,19 +1,20 @@
 const mongoose = require('mongoose');
-require('mongoose-type-url');
 
 const collegeSchema = new mongoose.Schema({
     name:{
         type: String,
-        required: true,
-        unique: true
+        required: "name is required",
+        unique: true,
+        trim: true
     },
     fullName:{
         type: String,
-        required: true
+        required: "fullName is required",
+        trim: true
     },
     logoLink:{
         type: String,
-        required:true
+        required: "logoLink is required",
     },
     isDeleted:{
         type: Boolean,

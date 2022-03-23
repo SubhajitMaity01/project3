@@ -5,12 +5,14 @@ const InternController= require("../controllers/internController")
 const CollegeController= require("../controllers/collegeController")
 
 
+//First API -: To create a college
+router.post("/colleges", CollegeController.createCollege)
 
-router.post("/functionup/interns", InternController.intern)
+//Second API -: To create a document for intern
+router.post("/interns", InternController.createIntern)
 
-router.post("/functionup/createcollege", CollegeController.createcollege)
-
-router.get("/functionup/collegeDetails", InternController.collegeDetails)
+//Third API -: To return the college details for requested college
+router.get("/collegeDetails", CollegeController.collegeDetails)
 
 
 module.exports = router;

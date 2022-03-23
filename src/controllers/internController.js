@@ -1,59 +1,62 @@
 const internModel = require("../models/internModel")
-const collegeModel = require("../models/collegeModel")
-const res = require("express/lib/response")
 
+const isValid = function (value) {
+    if (typeof (value) === undefined || typeof (value) === null) { return false }
+    if (typeof (value).trim().length == 0) { return false }
+    if (typeof (value) === "string" && (value).trim().length > 0) { return true }
+}
 
-const intern = async function (req, res) {
+const createIntern = async (req, res) => {
     try {
-    let input = req.body
-    let email = input.email
+        let data = req.body
+        if (Object.keys(data) == 0) {
+        return res.status(400).send({ status: false, message: "No data provided" })
+        }
+        const { name, email, mobile} = data
 
-    if (!Object.keys(input).length > 0) return res.status(400).send({ error: "Please enter some data" })
+        if (!isValid(name)) {
+             return res.status(400).send({ status: false, message: "name is required" })
+             }
+        if (!isValid(email)) { 
+            return res.status(400).send({ status: false, message: "email is required" }) 
+        }
+        if (!isValid(mobile)) { 
+            return res.status(400).send({ status: false, message: "mobile is required" })
+         }
+        
+        let uniqueEmail = await internModel.findOne({email : data.email})
+        if (uniqueEmail) {
+            return res.status(400).send({status: false , message: "email already exists"})
+        }
 
-    if (!input.name) return res.status(400).send({ error: "please enter name" })
+        let Email = data.email
+        let validateEmail = function (Email) {
+            return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(Email);
+        }
+        if (!validateEmail(Email)){
+        return res.status(400).send({status: false , message: "Please enter a valid email"})
+        }
 
+        let uniqueMobile = await internModel.findOne({mobile : data.mobile})
+        if (uniqueMobile) {
+            return res.status(400).send({status: false , message: "mobile already exists"})
+        }
 
-    if (!input.email) return res.status(400).send({ error: "please enter email" })
+        let Mobile = data.mobile
+        let validateMobile = function (Mobile) {
+            return /^([+]\d{2})?\d{10}$/.test(Mobile)
+        }
+        if (!validateMobile(Mobile)){
+        return res.status(400).send({status: false , message: "Please enter a valid mobile"})
+        }
 
-    if (!input.mobile) return res.status(400).send({ error: "please enter valid mobile number" })
-
-    if (!input.collegeId) return res.status(400).send({ error: "please enter College Id" })
-
-    let college = req.body.collegeId
-    let collegeId = await collegeModel.findById(college)
-
-    let x = await collegeModel.findOne({ _id: collegeId, isDeleted: false })
-    if (!x) {
-        res.status(404).send({ msg: "college not found" })
+        let internData = await internModel.create(data)
+        return res.status(201).send({status: true , data: internData })
     }
-    if (!collegeId) return res.status(400).send("please provide valid collegeId")
-
-    const emailAlreadyUsed = await internModel.findOne({email})
-
-    if(emailAlreadyUsed) return res.status(400).send({status: false, msg: "email already registered"})
-
-
-    let data = await internModel.create(input)
-    res.status(400).send({ status: true, msg: data })
+    catch (error) {
+        console.log(error)
+        return res.status(500).send({status: false , message: error.message })
+   }
 }
-catch (err) {
-    console.log(err)
-    res.status(500).send({ msg: err.message })
-}
-}
+module.exports.createIntern = createIntern
 
-const collegeDetails = async function(req,res){
-    const data = req.query
-
-    if(!data) return res.status(400).send({error:"enter some data for filter"})
-
-    const interns = await internModel.find(data).find({ isDeleted: false}).populate("collegeId")
-
-    if (!interns) return res.status(404).send({ error: "No such data found" })
-
-    res.status(200).send({})
-}
-
-module.exports.intern = intern
-
-module.exports.collegeDetails = collegeDetails
