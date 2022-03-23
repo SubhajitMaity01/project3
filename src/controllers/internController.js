@@ -1,8 +1,8 @@
 const internModel = require("../models/internModel")
+const collegeModel = require("../models/collegeModel")
 
 const isValid = function (value) {
     if (typeof (value) === undefined || typeof (value) === null) { return false }
-    if (typeof (value).trim().length == 0) { return false }
     if (typeof (value) === "string" && (value).trim().length > 0) { return true }
 }
 
@@ -12,7 +12,7 @@ const createIntern = async (req, res) => {
         if (Object.keys(data) == 0) {
         return res.status(400).send({ status: false, message: "No data provided" })
         }
-        const { name, email, mobile} = data
+        const { name, email, mobile, collegeId} = data
 
         if (!isValid(name)) {
              return res.status(400).send({ status: false, message: "name is required" })
@@ -23,7 +23,9 @@ const createIntern = async (req, res) => {
         if (!isValid(mobile)) { 
             return res.status(400).send({ status: false, message: "mobile is required" })
          }
-        
+         if (!isValid(collegeId)) { 
+            return res.status(400).send({ status: false, message: "College Id is required" })
+         }
         let uniqueEmail = await internModel.findOne({email : data.email})
         if (uniqueEmail) {
             return res.status(400).send({status: false , message: "email already exists"})
@@ -48,6 +50,10 @@ const createIntern = async (req, res) => {
         }
         if (!validateMobile(Mobile)){
         return res.status(400).send({status: false , message: "Please enter a valid mobile"})
+        }
+        let collegeExists = await collegeModel.findOne({_id : data.collegeId})
+        if (!collegeExists) {
+            return res.status(400).send({status: false , message: "No such college exists with this id"})
         }
 
         let internData = await internModel.create(data)

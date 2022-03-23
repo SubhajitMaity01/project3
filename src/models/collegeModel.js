@@ -5,7 +5,8 @@ const collegeSchema = new mongoose.Schema({
         type: String,
         required: "name is required",
         unique: true,
-        trim: true
+        trim: true,
+        lowercase: true
     },
     fullName:{
         type: String,
