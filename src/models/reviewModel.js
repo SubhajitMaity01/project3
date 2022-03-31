@@ -10,7 +10,7 @@ const reviewSchema = new mongoose.Schema({
     reviewedBy: {
         type: String, 
         required: "reviewed by is required",
-        default: `Guest${Math.floor(Math.random() * 9)}`
+        default:  "Guest" //`Guest${Math.floor(Math.random() * 1000000)}`
     },
     reviewedAt: {
         type: Date, 
